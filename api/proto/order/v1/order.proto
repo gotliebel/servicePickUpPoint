@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "homework-1/internal/constant/pkg/grpc/order;order";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+service Order {
+  rpc AcceptFromCourier (OrderRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/orders/accept"
+      body: "*"
+    };
+  }
+  rpc ReturnToCourier (CourierRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/orders/back"
+      body: "*"
+    };
+  }
+  rpc GiveToClient (ClientRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/orders/pickup"
+      body: "*"
+    };
+  }
+  rpc ListForClient (ClientIdRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/orders/list/{client_id}"
+    };
+  }
+  rpc ClientReturnsOrder (ShortOrderRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/orders/client/return"
+      body: "*"
+    };
+  }
+  rpc ListOfTakeBacks (TakebacksRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/v1/orders/takebacks"
+    };
+  }
+}
+
+message OrderRequest {
+  uint64 order_id = 1;
+  uint64 client_id = 2;
+  string stored_until = 3;
+  enum Pack {
+    PACK_BOX = 0;
+    PACK_BAG = 1;
+    PACK_WRAPPING = 2;
+  }
+  optional Pack pack = 4;
+  float weight = 5;
+  float price = 6;
+}
+message CourierRequest {
+  uint64 order_id = 1;
+}
+
+message ClientRequest {
+  string orders_id = 1;
+}
+
+message ClientIdRequest {
+  uint64 client_id = 1;
+  int32 limit = 2;
+}
+
+message ShortOrderRequest {
+  uint64 order_id = 1;
+  uint64 client_id = 2;
+}
+
+message TakebacksRequest {
+  int32 page = 1;
+}
+
+message ListResponse {
+  repeated OrderRequest list = 1;
+}
